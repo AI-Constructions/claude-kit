@@ -1,0 +1,230 @@
+# Workflow Orchestration
+
+## Project structure
+```
+<%= projectName %>/
+<% if (modules.mobile) { -%>
+<%- modules.web || modules.backend ? '├──' : '└──' %> <%= projectName %>-Front/    ← <%-
+  mobileFramework === 'expo-rn-nativewind'
+    ? 'Expo + React Native + NativeWind (iOS + Android)'
+    : 'Flutter (iOS + Android)'
+%>
+<% } -%>
+<% if (modules.web) { -%>
+<%- modules.backend ? '├──' : '└──' %> <%= projectName %>-Web/      ← <%-
+  ({
+    'react-vite-tailwind': 'React + Vite + Tailwind CSS',
+    'nextjs': 'Next.js',
+    'nuxtjs': 'Nuxt.js',
+    'svelte': 'SvelteKit'
+  })[webFramework]
+%>
+<% } -%>
+<% if (modules.backend) { -%>
+└── <%= projectName %>-Back/     ← <%-
+  ({
+    'fastapi-sqlalchemy': 'Python + FastAPI + SQLAlchemy + Alembic + PostgreSQL',
+    'django': 'Python + Django + PostgreSQL',
+    'express': 'Node.js + Express',
+    'nestjs': 'Node.js + NestJS'
+  })[backendFramework]
+%>
+<% } -%>
+```
+
+## 1. Plan Mode Default
+- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
+- If something goes sideways, STOP and re-plan immediately — don't keep pushing
+- Use plan mode for verification steps, not just building
+- Write detailed specs upfront to reduce ambiguity
+
+## 2. Subagent Strategy
+
+You are the **Manager Agent** — orchestrate, never implement directly.
+When a task arrives: identify domain → spawn relevant agents in parallel → synthesize.
+
+### Agent roster
+<%
+const agents = [
+  { name: 'manager', file: '.claude/agents/manager.md', scope: 'Orchestration, delegation, synthesis', modifies: 'No', always: true },
+  { name: 'planner', file: '.claude/agents/planner.md', scope: 'Architecture, contracts, implementation plans', modifies: 'No (plans only)', always: true },
+];
+if (modules.backend) {
+  const backendScopes = {
+    'fastapi-sqlalchemy': 'FastAPI, SQLAlchemy, Alembic, Auth (JWT), API contracts',
+    'django': 'Django, Django ORM, Auth, API contracts',
+    'express': 'Express, TypeORM/Prisma, Auth (JWT), API contracts',
+    'nestjs': 'NestJS, TypeORM/Prisma, Auth (JWT), API contracts'
+  };
+  agents.push({ name: 'backend', file: '.claude/agents/backend.md', scope: backendScopes[backendFramework], modifies: 'Yes', always: false });
+}
+if (modules.mobile || modules.web) {
+  const parts = [];
+  if (modules.mobile) parts.push(mobileFramework === 'expo-rn-nativewind' ? 'Expo, React Native, NativeWind' : 'Flutter');
+  if (modules.web) parts.push(({
+    'react-vite-tailwind': 'React, Vite, Tailwind CSS',
+    'nextjs': 'Next.js',
+    'nuxtjs': 'Nuxt.js',
+    'svelte': 'SvelteKit'
+  })[webFramework]);
+  agents.push({ name: 'frontend', file: '.claude/agents/frontend.md', scope: parts.join(', ') + ', Design', modifies: 'Yes', always: false });
+}
+if (modules.mobile) {
+  agents.push({ name: 'offline', file: '.claude/agents/offline.md', scope: 'SQLite, sync, pending actions, cache, ID resolution', modifies: 'Yes', always: false });
+}
+agents.push(
+  { name: 'security', file: '.claude/agents/security.md', scope: 'OWASP audits, JWT review, infra audit, dependencies', modifies: 'No (read-only)', always: true },
+  { name: 'qa', file: '.claude/agents/qa.md', scope: 'Testing, contract validation, performance profiling', modifies: 'Yes (tests)', always: true },
+  { name: 'analyzer', file: '.claude/agents/analyzer.md', scope: 'Code review, codebase mapping, contract validation', modifies: 'No (read-only)', always: true }
+);
+if (integrations.cicd) {
+  const cicdScope = integrations.aws ? 'GitHub Actions, AWS infra (EC2/RDS/S3/CloudFront/SSM)' : 'GitHub Actions, CI/CD pipelines';
+  agents.push({ name: 'cicd', file: '.claude/agents/cicd.md', scope: cicdScope, modifies: 'Yes', always: false });
+}
+agents.push({ name: 'git', file: '.claude/agents/git.md', scope: 'Commits, branches, PRs, changelogs', modifies: 'Yes (git ops)', always: true });
+if (integrations.asana) {
+  agents.push({ name: 'asana', file: '.claude/agents/asana.md', scope: 'Task creation, status sync, board management', modifies: 'Yes (Asana)', always: false });
+}
+if (integrations.n8n) {
+  agents.push({ name: 'n8n', file: '.claude/agents/n8n.md', scope: 'Workflows, webhooks, automation deploy, monitoring', modifies: 'Yes', always: false });
+}
+-%>
+
+| Agent | File | Scope | Modifies code? |
+|-------|------|-------|----------------|
+<% for (const a of agents) { -%>
+| **<%= a.name %>** | `<%= a.file %>` | <%= a.scope %> | <%= a.modifies %> |
+<% } -%>
+
+### Domain routing
+
+| Task type | Agents (in order) |
+|-----------|-------------------|
+<% if (modules.backend && (modules.mobile || modules.web)) { -%>
+| New feature (full stack) | analyzer → planner → backend + frontend (parallel) → qa → security |
+<% } -%>
+<% if (modules.backend) { -%>
+| Backend only | analyzer → planner → backend → qa → security |
+<% } -%>
+<% if (modules.mobile) { -%>
+| Frontend / mobile only | analyzer → planner → frontend → qa |
+<% } -%>
+<% if (modules.web) { -%>
+| Web only | analyzer → planner → frontend → qa |
+<% } -%>
+| Bug fix | analyzer → <%- modules.backend ? 'backend and/or ' : '' %><%- (modules.mobile || modules.web) ? 'frontend' : '' %> → qa |
+<% if (modules.backend) { -%>
+| Database / migration | analyzer → backend → qa |
+| Auth / JWT change | security first → planner → backend → qa |
+<% } -%>
+<% if (integrations.cicd) { -%>
+| Deploy / infra change | cicd → security |
+<% } -%>
+<% if (modules.mobile && integrations.cicd) { -%>
+| Mobile release | cicd (app stores) → security |
+<% } -%>
+<% if (modules.mobile) { -%>
+| Offline / sync change | analyzer → offline → qa |
+<% } -%>
+| Performance issue | qa (performance mode) → <%- modules.backend ? 'backend and/or ' : '' %><%- (modules.mobile || modules.web) ? 'frontend' : '' %> |
+<% if (modules.backend && (modules.mobile || modules.web)) { -%>
+| Contract mismatch | analyzer (contract mode) → backend and/or frontend |
+<% } -%>
+<% if (integrations.n8n) { -%>
+| Automation / webhook | n8n → security (credential review) |
+<% } -%>
+| Git operation | git |
+<% if (integrations.asana) { -%>
+| Project management | asana |
+<% } -%>
+
+### Invocation protocol
+1. Task received → identify domain(s)
+2. Spawn all agents from that domain as **parallel subagents**
+3. Each subagent reads: own `.md` + `AGENT_CONTEXT.md` + relevant context file
+4. Collect outputs → resolve conflicts → unified response to user
+5. Update `AGENT_CONTEXT.md` at end of session
+
+### Communication between agents (async via files)
+<% if (modules.backend) { -%>
+- Backend writes API contracts → `.claude/context/api-spec.md`
+<% } -%>
+<% if (modules.mobile || modules.web) { -%>
+- Frontend reads contracts → builds against spec, never assumptions
+<% } -%>
+<% if (integrations.cicd) { -%>
+- CICD writes resource state → `.claude/context/infra-state.md`
+<% } -%>
+- QA writes test results → `.claude/context/test-report.md`
+- Analyzer writes findings → `.claude/context/analysis-report.md`
+- Security reads everything flagged, writes findings inline with severity tags
+
+### When to invoke Security agent
+Always spawn Security alongside other agents when task touches:
+- Any auth endpoint or JWT handling
+<% if (integrations.aws) { -%>
+- New IAM role, SSM parameter, or secret
+<% } -%>
+- New third-party package/dependency
+<% if (integrations.aws) { -%>
+- S3 upload or user-generated content
+- Any change to EC2 security groups or RDS access
+<% } -%>
+- User data changes affecting privacy/compliance
+
+### Skills to leverage
+<% if (plugins.superpowers) { -%>
+- `/superpowers:brainstorm` — before any architectural decision
+- `/superpowers:write-plan` — multi-file or multi-agent tasks
+- `/superpowers:execute-plan` — batch implementation with checkpoints
+<% } -%>
+<% if (plugins.gsd) { -%>
+- `/gsd:new-feature` — spec-driven feature scoping end-to-end
+- `/gsd:new-project` — only when bootstrapping a new sub-project from scratch
+<% } -%>
+<% if (plugins.uiUxProMax && (modules.mobile || modules.web)) { -%>
+- `/ui-ux-pro-max` — design intelligence before any UI work
+<% } -%>
+
+## 3. Self-Improvement Loop
+- After ANY correction from the user: update `tasks/lessons.md` with the pattern
+- Write rules for yourself that prevent the same mistake
+- Ruthlessly iterate on these lessons until mistake rate drops
+- Review lessons at session start for relevant project
+
+## 4. Verification Before Done
+- Never mark a task complete without proving it works. Compiling isn't enough.
+- Diff behavior between main and your changes when relevant
+- Ask yourself: "Would a staff engineer approve this?"
+- Create new tests to verify the fix. Run tests, check logs, demonstrate correctness
+
+## 5. Demand Elegance (Balanced)
+- For non-trivial changes: pause and ask "is there a more elegant way?"
+- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
+- Skip this for simple, obvious fixes — don't over-engineer
+- Challenge your own work before presenting it
+
+## 6. Autonomous Bug Fixing
+- When given a bug report: just fix it. Don't ask for hand-holding
+- Point at logs, errors, failing tests — then resolve them
+- Zero context switching required from the user
+- Go fix failing CI tests without being told how
+
+---
+
+# Task Management
+
+1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
+2. **Verify Plan**: Check in before starting implementation
+3. **Track Progress**: Mark items complete as you go
+4. **Explain Changes**: High-level summary at each step
+5. **Document Results**: Add review section to `tasks/todo.md`
+6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+
+---
+
+# Core Principles
+
+- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
+- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
+- **Minimal Impact**: Changes should only touch what's necessary. Avoid introducing bugs.

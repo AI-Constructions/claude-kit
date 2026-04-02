@@ -1,0 +1,60 @@
+# <%= projectName %> — Project Context
+
+## Description
+<!-- Describe your project here -->
+
+## Tech Stack
+<% if (modules.mobile) { -%>
+- **Mobile:** <%= mobileFramework === 'expo-rn-nativewind' ? 'Expo + React Native + NativeWind + Zustand' : 'Flutter + Dart' %>
+<% } -%>
+<% if (modules.web) { -%>
+- **Web:** <%- ({
+  'react-vite-tailwind': 'React + Vite + Tailwind CSS',
+  'nextjs': 'Next.js + React',
+  'nuxtjs': 'Nuxt.js + Vue',
+  'svelte': 'SvelteKit + Svelte'
+})[webFramework] %>
+<% } -%>
+<% if (modules.backend) { -%>
+- **Backend:** <%- ({
+  'fastapi-sqlalchemy': 'Python + FastAPI + SQLAlchemy + Alembic',
+  'django': 'Python + Django',
+  'express': 'Node.js + Express',
+  'nestjs': 'Node.js + NestJS + TypeORM'
+})[backendFramework] %>
+- **Database:** PostgreSQL
+<% } -%>
+<% if (integrations.aws) { -%>
+- **Infrastructure:** AWS (EC2, RDS, S3, CloudFront, SSM)
+<% } -%>
+- **Auth:** JWT
+<% if (modules.mobile) { -%>
+- **Offline:** SQLite + sync service
+<% } -%>
+
+## Repository Structure
+```
+<%= projectName %>/
+<% if (modules.mobile) { -%>
+<%- (modules.web || modules.backend) ? '├──' : '└──' %> <%= projectName %>-Front/
+<% } -%>
+<% if (modules.web) { -%>
+<%- modules.backend ? '├──' : '└──' %> <%= projectName %>-Web/
+<% } -%>
+<% if (modules.backend) { -%>
+└── <%= projectName %>-Back/
+<% } -%>
+```
+
+## Current Phase
+<!-- e.g., MVP, Beta, Production -->
+
+## Established Conventions
+<!-- Add project conventions as they're decided -->
+
+## Known Tech Debt
+<!-- Track tech debt items here -->
+
+## Recent Sessions
+| Date | Summary | Agent(s) |
+|------|---------|----------|
