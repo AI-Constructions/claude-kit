@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -22,9 +23,7 @@ jobs:
 
       - run: npm test
 
-      - run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npm publish --access public --provenance
 
       - run: tar czf claude-kit-${{ github.ref_name }}.tar.gz --exclude=node_modules --exclude=.git .
 

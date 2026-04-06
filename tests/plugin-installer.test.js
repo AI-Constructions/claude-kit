@@ -8,7 +8,7 @@ describe('plugin-installer', () => {
 
     const commands = getInstallCommands(targetDir, plugins);
 
-    expect(commands).toHaveLength(3);
+    expect(commands).toHaveLength(4);
     expect(commands[0]).toEqual({
       name: 'Superpowers',
       type: 'exec',
@@ -20,10 +20,14 @@ describe('plugin-installer', () => {
       command: 'npx get-shit-done-cc@latest --claude --local'
     });
     expect(commands[2]).toEqual({
-      name: 'ui-ux-pro-max',
-      type: 'giget',
-      source: 'github:nextlevelbuilder/ui-ux-pro-max-skill',
-      dest: expect.stringMatching(/\.claude[/\\]skills[/\\]ui-ux-pro-max$/)
+      name: 'ui-ux-pro-max (marketplace)',
+      type: 'exec',
+      command: 'claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill'
+    });
+    expect(commands[3]).toEqual({
+      name: 'ui-ux-pro-max (install)',
+      type: 'exec',
+      command: 'claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill'
     });
   });
 

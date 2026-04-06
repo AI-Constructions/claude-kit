@@ -22,10 +22,14 @@ export function getInstallCommands(targetDir, plugins) {
 
   if (plugins.uiUxProMax) {
     commands.push({
-      name: 'ui-ux-pro-max',
-      type: 'giget',
-      source: 'github:nextlevelbuilder/ui-ux-pro-max-skill',
-      dest: path.join(targetDir, '.claude', 'skills', 'ui-ux-pro-max')
+      name: 'ui-ux-pro-max (marketplace)',
+      type: 'exec',
+      command: 'claude plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill'
+    });
+    commands.push({
+      name: 'ui-ux-pro-max (install)',
+      type: 'exec',
+      command: 'claude plugin install ui-ux-pro-max@ui-ux-pro-max-skill'
     });
   }
 
