@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "Interactive CLI to scaffold a multi-agent Claude Code workspace",
   "bin": {
-    "claude-kit": "./bin/cli.js"
+    "claude-kit": "bin/cli.js"
   },
   "main": "src/index.js",
   "type": "module",
