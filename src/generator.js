@@ -75,6 +75,12 @@ export async function generate(targetDir, vars) {
       await fs.writeFile(path.join(agentsDir, outputName), content);
     }
   }
+
+  // 5. Copy bundled skills (always included)
+  const skillsSrc = path.join(TEMPLATES_DIR, 'skills');
+  if (await fs.pathExists(skillsSrc)) {
+    await fs.copy(skillsSrc, path.join(targetDir, '.claude', 'skills'), { overwrite: true });
+  }
 }
 
 // Export for testing

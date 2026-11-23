@@ -45,6 +45,16 @@ describe('integration: full scaffold', () => {
       'offline.md', 'planner.md', 'qa.md', 'security.md'
     ]);
 
+    // Bundled skills
+    const skills = await fs.readdir(path.join(tmpDir, '.claude', 'skills'));
+    expect(skills.sort()).toEqual([
+      'gstack-deslop-shared-libs', 'gstack-health', 'gstack-test-audit', 'handoff',
+      'rodada-longa', 'upstream'
+    ]);
+    expect(await fs.pathExists(
+      path.join(tmpDir, '.claude', 'skills', 'handoff', 'SKILL.md')
+    )).toBe(true);
+
     // Context files
     const context = await fs.readdir(path.join(tmpDir, '.claude', 'context'));
     expect(context.sort()).toEqual([

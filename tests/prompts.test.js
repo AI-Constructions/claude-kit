@@ -72,7 +72,7 @@ describe('normalizeAnswers', () => {
       webFramework: null,
       backendFramework: 'fastapi-sqlalchemy',
       integrations: { cicd: true, aws: true, asana: false, n8n: false },
-      plugins: { superpowers: true, gsd: true, uiUxProMax: false }
+      plugins: { superpowers: true, gsd: true, uiUxProMax: false, watch: false }
     });
   });
 
@@ -91,6 +91,6 @@ describe('normalizeAnswers', () => {
     const result = normalizeAnswers(raw);
     expect(result.modules).toEqual({ mobile: true, web: true, backend: true });
     expect(result.integrations).toEqual({ cicd: true, aws: true, asana: true, n8n: true });
-    expect(result.plugins).toEqual({ superpowers: true, gsd: true, uiUxProMax: true });
+    expect(result.plugins).toEqual({ superpowers: true, gsd: true, uiUxProMax: true, watch: false });
   });
 });

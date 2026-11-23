@@ -185,6 +185,12 @@ Always spawn Security alongside other agents when task touches:
 <% if (plugins.uiUxProMax && (modules.mobile || modules.web)) { -%>
 - `/ui-ux-pro-max` — design intelligence before any UI work
 <% } -%>
+<% if (plugins.watch) { -%>
+- `/watch <url-or-file>` — analyze a video (bug recording, demo, tutorial); requires `yt-dlp` and `ffmpeg` on PATH
+<% } -%>
+- `gstack-health` — code quality score and trend; `gstack-test-audit` — find low-value tests; `gstack-deslop-shared-libs` — find worthwhile shared-code extractions
+- `handoff` — record state when stopping a task so another agent/session can resume
+- `rodada-longa` — long unattended runs with periodic resume; `upstream` — summarize news from tracked GitHub repos
 
 ## 3. Self-Improvement Loop
 - After ANY correction from the user: update `tasks/lessons.md` with the pattern

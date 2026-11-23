@@ -29,7 +29,8 @@ export const INTEGRATION_OPTIONS = [
 export const PLUGIN_OPTIONS = [
   { name: 'Superpowers (skills & workflows)', value: 'superpowers', checked: true },
   { name: 'GSD (Get Shit Done)', value: 'gsd', checked: true },
-  { name: 'ui-ux-pro-max (design intelligence)', value: 'uiUxProMax', checked: true }
+  { name: 'ui-ux-pro-max (design intelligence)', value: 'uiUxProMax', checked: true },
+  { name: 'claude-video /watch (video analysis; needs yt-dlp + ffmpeg)', value: 'watch', checked: true }
 ];
 
 export function buildPromptConfig() {
@@ -116,7 +117,8 @@ export function normalizeAnswers(answers) {
     plugins: {
       superpowers: answers.plugins.includes('superpowers'),
       gsd: answers.plugins.includes('gsd'),
-      uiUxProMax: answers.plugins.includes('uiUxProMax')
+      uiUxProMax: answers.plugins.includes('uiUxProMax'),
+      watch: answers.plugins.includes('watch')
     }
   };
 }

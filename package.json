@@ -1,6 +1,6 @@
 {
   "name": "@aiconstructions/claude-kit",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Interactive CLI to scaffold a multi-agent Claude Code workspace",
   "bin": {
     "claude-kit": "./bin/cli.js"
@@ -45,6 +45,7 @@
     "src/",
     "templates/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
   ]
 }

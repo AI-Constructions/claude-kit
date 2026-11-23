@@ -15,7 +15,8 @@ A fully configured Claude Code workspace with:
 - **CLAUDE.md** — Master orchestration guide adapted to your stack
 - **12 specialist agents** — manager, planner, backend, frontend, qa, security, analyzer, git, offline, cicd, asana, n8n (included based on your selections)
 - **Shared context files** — API spec, infrastructure state, test reports
-- **Plugin auto-install** — Superpowers, GSD, ui-ux-pro-max
+- **Bundled skills** (`.claude/skills/`) — `gstack-health`, `gstack-test-audit`, `gstack-deslop-shared-libs` (adapted from [garrytan/gstack](https://github.com/garrytan/gstack), MIT) `handoff`, `rodada-longa` (autonomous multi-hour runs) and `upstream` (track upstream repos)
+- **Plugin auto-install** — Superpowers, GSD, ui-ux-pro-max, claude-video (`/watch`)
 
 ## Supported Stacks
 
@@ -63,7 +64,14 @@ Options:
 |--------|--------|--------|
 | [Superpowers](https://github.com/obra/superpowers) | Claude Plugin Marketplace | `claude plugin install` |
 | [GSD](https://github.com/gsd-build/get-shit-done) | npm | `npx get-shit-done-cc` |
-| [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | GitHub | Direct download |
+| [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | GitHub | `claude plugin marketplace add` + `claude plugin install` |
+| [claude-video](https://github.com/bradautomates/claude-video) (`/watch`) | GitHub | `claude plugin marketplace add` + `claude plugin install watch@claude-video` |
+
+`/watch` needs `yt-dlp` and `ffmpeg` on your PATH (Windows: `winget install yt-dlp.yt-dlp Gyan.FFmpeg`; macOS: `brew install yt-dlp ffmpeg`).
+
+## Third-party notices
+
+See `THIRD_PARTY_NOTICES.md`.
 
 ## License
 

@@ -35,7 +35,8 @@ describe('plugin-installer', () => {
     const commands = getInstallCommands('/tmp/x', {
       superpowers: false,
       gsd: true,
-      uiUxProMax: false
+      uiUxProMax: false,
+      watch: false
     });
 
     expect(commands).toHaveLength(1);
@@ -50,5 +51,14 @@ describe('plugin-installer', () => {
     });
 
     expect(commands).toHaveLength(0);
+  });
+
+  test('getInstallCommands adds claude-video /watch commands', () => {
+    const commands = getInstallCommands('/tmp/x', { watch: true });
+
+    expect(commands).toEqual([
+      { name: 'claude-video /watch (marketplace)', type: 'exec', command: 'claude plugin marketplace add bradautomates/claude-video' },
+      { name: 'claude-video /watch (install)', type: 'exec', command: 'claude plugin install watch@claude-video' }
+    ]);
   });
 });

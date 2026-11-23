@@ -33,6 +33,19 @@ export function getInstallCommands(targetDir, plugins) {
     });
   }
 
+  if (plugins.watch) {
+    commands.push({
+      name: 'claude-video /watch (marketplace)',
+      type: 'exec',
+      command: 'claude plugin marketplace add bradautomates/claude-video'
+    });
+    commands.push({
+      name: 'claude-video /watch (install)',
+      type: 'exec',
+      command: 'claude plugin install watch@claude-video'
+    });
+  }
+
   return commands;
 }
 
